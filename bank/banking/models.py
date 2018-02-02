@@ -14,3 +14,6 @@ class Userdata(models.Model):
 
     class Meta:
         ordering = ('-created',)
+
+    def __str__(self):
+        return u'%s %s' % (self.first_name, self.last_name)
