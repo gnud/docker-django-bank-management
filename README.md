@@ -32,13 +32,13 @@ Demonstration of a Django application that acts as a bank management solution.
 
     a) Google enabled authentication []
 
-  - CRUD        [] 
+  - CRUD        [x]
 
-  - Permissions []
+  - Permissions [x]
 
-     a) show only record belonging to admin creator []
+     a) show only record belonging to admin creator [x]
 
-     b) only admin creator can edit userdata record []
+     b) only admin creator can edit userdata record [x]
 
 * Deployment    []
 
