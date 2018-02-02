@@ -22,6 +22,8 @@ Demonstration of a Django application that acts as a bank management solution.
 
   - Tests       []
 
+    a)  String representation [x]
+
 * Admin         []
 
   - basic admin []
