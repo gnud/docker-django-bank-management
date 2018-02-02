@@ -18,7 +18,7 @@ Demonstration of a Django application that acts as a bank management solution.
 
 * Models []
 
-  - Userdata    []
+  - Userdata    [x]
 
   - Tests       []
 
