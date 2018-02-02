@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
 from django.db import models
 
@@ -14,6 +15,9 @@ class Userdata(models.Model):
 
     created = models.DateTimeField(auto_now_add=True, editable=False)
     last_updated = models.DateTimeField(auto_now=True, editable=False)
+
+    # Relationship Fields
+    owner = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True)
 
     class Meta:
         ordering = ('-created',)

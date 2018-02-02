@@ -1,8 +1,12 @@
 import string
 
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.test.client import Client
 import factory
+from django.urls import reverse
+
 from .models import Userdata
 
 ALPHA = {c: str(ord(c) % 55) for c in string.ascii_uppercase}
@@ -81,3 +85,37 @@ class UserdataModelTest(TestCase):
     def test_create_userdata_success(self):
         """Raises ValidationError when non alphanumeric chars in iban's field"""
         UserdataFactory.create()
+
+
+class UserdataAdminTest(TestCase):
+    def test_access_owned_record(self):
+
+        self.bob_credentials = ['admin_bob', 'admin_bob@example.com', "7u35ITpAss"]
+        self.root_credentials = ['admin_root', 'admin_root@example.com', "7u35ITpAss"]
+        self.create_admins()
+
+        c_admin_root = self.login_client(self.root_credentials)
+        c_admin_bob = self.login_client(self.bob_credentials)
+
+        model_path = reverse('admin:banking_userdata_changelist')
+
+        response1 = c_admin_root.get(model_path)
+        response2 = c_admin_bob.get(model_path)
+
+        self.assertEqual(response1.status_code, 200)
+        self.assertEqual(response2.status_code, 200)
+
+    def login_client(self, credentials):
+        client = Client()
+        login = client.login(username=credentials[0], password=credentials[2])
+
+        self.assertTrue(login)
+
+        return client
+
+    def create_admins(self):
+        admin_bob = get_user_model().objects.create_superuser(*self.bob_credentials)
+        admin_john = get_user_model().objects.create_superuser(*self.root_credentials)
+
+    def test_access_others_record(self):
+        pass

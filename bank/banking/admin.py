@@ -18,5 +18,8 @@ class UserdataAdmin(admin.ModelAdmin):
     list_display = ['first_name', 'last_name', 'iban', 'created', 'last_updated']
     readonly_fields = ['created', 'last_updated']
 
+    def get_queryset(self, request):
+        return Userdata.objects.filter(owner=request.user)
+
 
 admin.site.register(Userdata, UserdataAdmin)
