@@ -12,9 +12,9 @@ Demonstration of a Django application that acts as a bank management solution.
 
 * Create Django project [x]
 
-* Create Django app banking []
+* Create Django app banking [x]
 
-  - register app in settings []
+  - register app in settings [x]
 
 * Models []
 
