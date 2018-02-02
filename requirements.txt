@@ -2,3 +2,5 @@ Django==2.0.2      # Django ...
 psycopg2==2.7.3.2     # PostgreSQL adapter
 uwsgi==2.0.15       # The uWSGI Server
 Jinja2==2.10         # A small but fast and easy to use stand-alone template engine written in pure python
+
+factory-boy==2.10.0 # Data generation for tests
