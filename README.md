@@ -10,6 +10,8 @@ Demonstration of a Django application that acts as a bank management solution.
 
   - PostgresSQL libraries  [x]
 
+* Create Django project [x]
+
 * Create Django app banking []
 
   - register app in settings []
@@ -57,4 +59,9 @@ $ cd 'docker-django-bank-management'
 $ virtualenv -p /usr/bin/python3 venv
 $ source venv/bin/activate
 $ pip install -r app/requirements.txt
+```
+
+Create Django project:
+```
+$ django-admin startproject bank
 ```
