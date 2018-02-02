@@ -16,10 +16,16 @@ class UserdataAdminForm(forms.ModelForm):
 class UserdataAdmin(admin.ModelAdmin):
     form = UserdataAdminForm
     list_display = ['first_name', 'last_name', 'iban', 'created', 'last_updated']
-    readonly_fields = ['created', 'last_updated']
+    fields = ['first_name', 'last_name', 'iban']
+    readonly_fields = ['owner', 'created', 'last_updated']
 
     def get_queryset(self, request):
         return Userdata.objects.filter(owner=request.user)
+
+    def save_model(self, request, obj, form, change):
+        obj.owner = request.user
+
+        obj.save()
 
 
 admin.site.register(Userdata, UserdataAdmin)
