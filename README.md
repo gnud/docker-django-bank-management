@@ -26,7 +26,7 @@ Demonstration of a Django application that acts as a bank management solution.
 
 * Admin         []
 
-  - basic admin []
+  - basic admin [x]
 
   - authentication []
 
