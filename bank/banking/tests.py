@@ -57,13 +57,27 @@ class UserdataModelTest(TestCase):
         entry = Userdata(first_name="John", last_name="Doe")
         self.assertEqual(str(entry), "%s %s" % (entry.first_name, entry.last_name))
 
-    def test_create_userdata_bad(self):
+    def test_create_userdata_bad_iban(self):
         """Raises ValidationError when non alphanumeric chars in iban's field"""
         userdata = UserdataFactoryBad.create()
 
         with self.assertRaises(ValidationError):
             userdata.full_clean()
 
-    def test_create_userdata(self):
+    def test_create_userdata_bad_first_name(self):
+        """Raises ValidationError when non alphanumeric chars in first_name's field"""
+        userdata = UserdataFactory.create(first_name=52 * "John ")
+
+        with self.assertRaises(ValidationError):
+            userdata.full_clean()
+
+    def test_create_userdata_bad_last_name(self):
+        """Raises ValidationError when non alphanumeric chars in last_name's field"""
+        userdata = UserdataFactory.create(last_name=80 * " Doe")
+
+        with self.assertRaises(ValidationError):
+            userdata.full_clean()
+
+    def test_create_userdata_success(self):
         """Raises ValidationError when non alphanumeric chars in iban's field"""
-        userdata = UserdataFactory.create()
+        UserdataFactory.create()

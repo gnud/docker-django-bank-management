@@ -20,7 +20,7 @@ Demonstration of a Django application that acts as a bank management solution.
 
   - Userdata    [x]
 
-  - Tests       []
+  - Tests       [x]
 
     a)  String representation [x]
 
