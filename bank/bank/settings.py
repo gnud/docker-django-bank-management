@@ -37,7 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'banking'
+    'banking',
+
+    # Social integration
+    'oauth2_provider',
+    'social_django',
+    'rest_framework_social_oauth2',
+
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -55,7 +62,7 @@ ROOT_URLCONF = 'bank.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'banking', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -63,6 +70,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                # Social integration
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -119,3 +130,28 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'rest_framework_social_oauth2.authentication.SocialAuthentication',
+    ),
+}
+
+AUTHENTICATION_BACKENDS = (
+    'rest_framework_social_oauth2.backends.DjangoOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+    'social_core.backends.google.GoogleOAuth2',
+)
+
+# Google configuration
+# Create new Google Web application
+# https://console.cloud.google.com/apis/credentials/oauthclient/
+# Client ID
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ' {MY KEY GOOGLE}.apps.googleusercontent.com '
+# Client secret
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'MYSECRET'
+GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'token_expiry': None, 'access_type': 'offline'}
+
+LOGIN_REDIRECT_URL = '/admin/'
