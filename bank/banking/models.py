@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
 from django.db import models
+from django.db.models.signals import post_save
+
+from .signals import create_user_profile
 
 # Create your models here.
 
@@ -24,3 +27,6 @@ class Userdata(models.Model):
 
     def __str__(self):
         return u'%s %s' % (self.first_name, self.last_name)
+
+
+post_save.connect(create_user_profile, sender=get_user_model())
