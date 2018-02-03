@@ -44,7 +44,7 @@ Demonstration of a Django application that acts as a bank management solution.
 
  - Docker       [x]
 
- - Test task    []
+ - Test task    [x]
  
 
 
@@ -127,6 +127,12 @@ $ python manage collectstatic
 $ sudo docker-compose build
 $ sudo docker stop $(sudo docker ps -aq)
 $ sudo docker-compose up web # this will launch a production version
+```
+
+## Run Docker Tests
+
+```
+sudo docker-compose run bank manage test
 ```
 
 Workflow for publishing changes
