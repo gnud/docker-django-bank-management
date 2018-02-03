@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
+import logging.config
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -23,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'vdc-3!re1ddl+ku6sa3tj&gqxo^u7jp$-apb%5a-r31e1xc^pn'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.environ.get('DEBUG', False))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '0.0.0.0']
 
 
 # Application definition
@@ -86,9 +87,17 @@ WSGI_APPLICATION = 'bank.wsgi.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    # },
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get('POSTGRES_DB_NAME'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('POSTGRES_PORT_5432_TCP_ADDR'),
+        'PORT': os.environ.get('POSTGRES_PORT_5432_TCP_PORT'),
     }
 }
 
@@ -128,8 +137,120 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
-
+#
 STATIC_URL = '/static/'
+#
+# Collect static won't work if you haven't configured this
+# django.core.exceptions.ImproperlyConfigured: You're using the staticfiles app without having set
+#  the STATIC_ROOT setting to a filesystem path.
+STATIC_ROOT = 'static/'
+
+# Indicate that we're being executed by uWSGI
+# This settings is used in urls.py to serve the static from within uWSGI
+IS_WSGI = bool(os.environ.get('IS_WSGI', False))
+
+# Setup support for proxy headers
+# https://design.canonical.com/2015/08/django-behind-a-proxy-fixing-absolute-urls
+# http://stackoverflow.com/questions/19669376/django-rest-framework-absolute-urls-with-nginx-always-return-127-0-0-1
+# http://stackoverflow.com/questions/26435272/how-to-use-django-sslify-to-force-https-on-my-djangonginxgunicorn-web-app-and
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
+
+
+# Disable Django's logging setup
+LOGGING_CONFIG = None
+
+LOGLEVEL = os.environ.get('LOGLEVEL', 'debug').upper()
+
+
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'main_formatter': {
+            'format': '%(levelname)s:%(name)s: %(message)s '
+                      '(%(asctime)s; %(filename)s:%(lineno)d)',
+            'datefmt': "%Y-%m-%d %H:%M:%S",
+        },
+        # 'django.server': DEFAULT_LOGGING['formatters']['django.server'],
+    },
+    'handlers': {
+        'db': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'db.log'),
+            'formatter': 'main_formatter',
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info.log'),
+            'formatter': 'main_formatter',
+        },
+        'errors': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'errors.log'),
+            'formatter': 'main_formatter',
+        },
+        'other': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'other.log'),
+            'formatter': 'main_formatter',
+        },
+        'requests': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'requests.log'),
+            'formatter': 'main_formatter',
+        },
+        'django': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'django.log'),
+            'formatter': 'main_formatter',
+        },
+
+        # 'django.server': DEFAULT_LOGGING['handlers']['django.server'],
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['django'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['requests'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        # default for all undefined Python modules
+        '': {
+            'level': 'DEBUG',
+            'handlers': ['other'],
+        },
+        # Our application code
+        'app': {
+            'level': LOGLEVEL,
+            'handlers': ['file'],
+            # Avoid double logging because of root logger
+            'propagate': False,
+        },
+        # Prevent noisy modules from logging to Sentry
+        'noisy_module': {
+            'level': 'ERROR',
+            'handlers': ['errors'],
+            'propagate': False,
+        },
+        'django.contrib.auth.backends.ModelBackend': {
+            'level': 'DEBUG',
+            'handlers': ['db'],
+        }
+        # Default runserver request logging
+        # 'django.server': DEFAULT_LOGGING['loggers']['django.server'],
+    }
+})
 
 
 REST_FRAMEWORK = {

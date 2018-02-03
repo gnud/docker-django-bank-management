@@ -16,7 +16,7 @@ Demonstration of a Django application that acts as a bank management solution.
 
   - register app in settings [x]
 
-* Models []
+* Models [x]
 
   - Userdata    [x]
 
@@ -24,13 +24,13 @@ Demonstration of a Django application that acts as a bank management solution.
 
     a)  String representation [x]
 
-* Admin         []
+* Admin         [x]
 
   - basic admin [x]
 
-  - authentication []
+  - authentication [x]
 
-    a) Google enabled authentication []
+    a) Google enabled authentication [x]
 
   - CRUD        [x]
 
@@ -40,9 +40,9 @@ Demonstration of a Django application that acts as a bank management solution.
 
      b) only admin creator can edit userdata record [x]
 
-* Deployment    []
+* Deployment    [x]
 
- - Docker       []
+ - Docker       [x]
 
  - Test task    []
  
@@ -60,7 +60,7 @@ Init project:
 $ cd 'docker-django-bank-management'
 $ virtualenv -p /usr/bin/python3 venv
 $ source venv/bin/activate
-$ pip install -r app/requirements.txt
+$ pip install -r bank/requirements.txt
 ```
 
 Create Django project:
@@ -72,7 +72,7 @@ Setup database:
 ```
 $ POSTGRES_PORT_5432_TCP_ADDR=localhost
 $ POSTGRES_PORT_5432_TCP_PORT=5432
-$ POSTGRES_DB_NAME=bankapp
+$ POSTGRES_DB_NAME=bank
 $ PGUSER=django_usr
 $ PGPASSWORD=django
 $ sudo -u $PGUSER psql -c "CREATE DATABASE $POSTGRES_DB_NAME"
@@ -101,4 +101,66 @@ $ python manage.py runserver
 Create a super user
 ```
 $ python manage createsuperuser
+```
+
+Docker:
+
+## Initial Setup
+```
+$ python manage collectstatic
+$ sudo docker-compose build --force-rm --no-cache
+$ # sudo docker-compose up postgres # To troubleshoot
+$ sudo docker-compose up -d postgres
+$ sudo docker-compose run bank setup_db # see deployment/docker-entrypoint.sh for more info
+$ sudo docker-compose up web # this will launch a production version
+```
+
+## Launch
+
+**Now your django app is available at [link](http://localhost/)**
+
+## Common tasks
+After each library install run
+
+```
+$ python manage collectstatic
+$ sudo docker-compose build
+$ sudo docker stop $(sudo docker ps -aq)
+$ sudo docker-compose up web # this will launch a production version
+```
+
+Workflow for publishing changes
+
+```
+$ sudo docker-compose build
+$ sudo docker stop $(sudo docker ps -aq)
+$ sudo docker-compose up web # this will launch a production version
+```
+
+## TROUBLESHOOT
+Exec bash in any container
+
+Troubleshoot the nginx server
+```
+$ sudo docker exec -it dockerdjangobankmanagement_web_1 sh
+$ cd /var/log/nginx/
+$ tail -f *
+```
+
+
+Troubleshoot the django server
+```
+$ sudo docker exec -it dockerdjangobankmanagement_bank_1 sh
+$ tail -f *.log
+```
+
+
+Full refresh from scratch
+**WARNING**: Make sure you don't have any personal containers!
+Doing so will remove everything.
+
+```
+$ sudo docker stop $(sudo docker ps -aq)
+$ sudo docker rm $(sudo docker ps -aq)
+$ sudo docker-compose build --force-rm --no-cache
 ```

@@ -98,3 +98,5 @@ pgdata
 
 # SQLite Data
 db.sqlite3
+
+bank/static/**
