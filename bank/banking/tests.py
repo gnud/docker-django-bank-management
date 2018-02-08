@@ -55,7 +55,6 @@ class UserdataFactoryBad(factory.Factory):
     iban = iban[0: -2] + "$"
 
 
-# noinspection SpellCheckingInspection
 class UserdataModelTest(TestCase):
     def test_string_representation(self):
         entry = Userdata(first_name="John", last_name="Doe")
@@ -82,40 +81,66 @@ class UserdataModelTest(TestCase):
         with self.assertRaises(ValidationError):
             userdata.full_clean()
 
-    def test_create_userdata_success(self):
+    @staticmethod
+    def test_create_userdata_success():
         """Raises ValidationError when non alphanumeric chars in iban's field"""
         UserdataFactory.create()
 
 
 class UserdataAdminTest(TestCase):
-    def test_access_owned_record(self):
+    """Admin object based permissions access tests"""
 
-        self.bob_credentials = ['admin_bob', 'admin_bob@example.com', "7u35ITpAss"]
-        self.root_credentials = ['admin_root', 'admin_root@example.com', "7u35ITpAss"]
-        self.create_admins()
+    @classmethod
+    def setUpTestData(cls):
+        # Create admin user from different source
+        cls.bob_credentials = ['admin_bob', 'admin_bob@example.com', "7u35ITpAss"]
+        cls.root_credentials = ['admin_root', 'admin_root@example.com', "7u35ITpAss"]
+        cls.create_admins()
 
-        c_admin_root = self.login_client(self.root_credentials)
-        c_admin_bob = self.login_client(self.bob_credentials)
+        # Login the users
+        cls.c_admin_root = cls.login_client(cls.root_credentials)
+        cls.c_admin_bob = cls.login_client(cls.bob_credentials)
 
-        model_path = reverse('admin:banking_userdata_changelist')
+        # Create records
+        Userdata.objects.create(owner=cls.user_bob, first_name='Alice', last_name='Doe', iban=make_iban(ISPB['BERLINER NOTSPA-RKA-SSE'], '12345', '123456'))
+        Userdata.objects.create(owner=cls.user_root, first_name='Bob', last_name='Bob', iban=make_iban(ISPB['BERLINER NOTSPA-RKA-SSE'], '12345', '123456'))
 
-        response1 = c_admin_root.get(model_path)
-        response2 = c_admin_bob.get(model_path)
-
-        self.assertEqual(response1.status_code, 200)
-        self.assertEqual(response2.status_code, 200)
-
-    def login_client(self, credentials):
+    @classmethod
+    def login_client(cls, credentials):
         client = Client()
         login = client.login(username=credentials[0], password=credentials[2])
 
-        self.assertTrue(login)
+        cls.assertTrue(cls, expr=login)
 
         return client
 
-    def create_admins(self):
-        admin_bob = get_user_model().objects.create_superuser(*self.bob_credentials)
-        admin_john = get_user_model().objects.create_superuser(*self.root_credentials)
+    @classmethod
+    def create_admins(cls):
+        cls.user_bob = get_user_model().objects.create_superuser(*cls.bob_credentials)
+        cls.user_root = get_user_model().objects.create_superuser(*cls.root_credentials)
 
-    def test_access_others_record(self):
-        pass
+    def test_login_access(self):
+
+        model_path = reverse('admin:banking_userdata_changelist')
+
+        response1 = self.c_admin_root.get(model_path)
+        response2 = self.c_admin_bob.get(model_path)
+
+        # Test whether we can load the index of the admin
+        self.assertEqual(response1.status_code, 200)
+        self.assertEqual(response2.status_code, 200)
+
+    def test_whether_bob_can_access_own_record(self):
+        record_from_bob = Userdata.objects.filter(owner=self.user_bob).first()
+
+        self.access_user_record(self.c_admin_bob, record_from_bob, 200)
+
+    def test_whether_bob_can_access_root_record(self):
+        record_from_root = Userdata.objects.filter(owner=self.user_root).first()
+
+        self.access_user_record(self.c_admin_bob, record_from_root, 302)
+
+    def access_user_record(self, c, record_from_root, expect):
+        admin_url = reverse('admin:banking_userdata_change', args=[record_from_root.pk])
+        response1 = c.get(admin_url)
+        self.assertEqual(first=response1.status_code, second=expect, msg="ff")
