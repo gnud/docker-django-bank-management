@@ -5,8 +5,6 @@ from django.db.models.signals import post_save
 
 from .signals import create_user_profile
 
-# Create your models here.
-
 alphanumeric = RegexValidator(r'^[0-9a-zA-Z]*$', 'Only alphanumeric characters are allowed.')
 
 
