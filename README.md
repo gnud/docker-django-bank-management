@@ -45,7 +45,16 @@ Demonstration of a Django application that acts as a bank management solution.
  - Docker       [x]
 
  - Test task    [x]
- 
+
+
+## Fixes
+- no validation of IBAN (requested features)                        []
+- a lot of unnecessary boilerplate code (eg unused requirements,
+  template content)                                                 []
+- Change of an object instance in a signal (create_user_profile).
+This should take place in the model's save () method                []
+- UserdataAdminTest is incomplete. The implemented test case makes
+  little sense                                                      []
 
 
 ## Usage
