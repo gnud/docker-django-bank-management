@@ -48,13 +48,13 @@ Demonstration of a Django application that acts as a bank management solution.
 
 
 ## Fixes
-- no validation of IBAN (requested features)                        []
+- no validation of IBAN (requested features)                        [x]
 - a lot of unnecessary boilerplate code (eg unused requirements,
   template content)                                                 [x]
 - Change of an object instance in a signal (create_user_profile).
 This should take place in the model's save () method                [x]
 - UserdataAdminTest is incomplete. The implemented test case makes
-  little sense                                                      []
+  little sense                                                      [x]
 
 
 ## Usage
@@ -109,14 +109,14 @@ $ python manage.py runserver
 
 Create a super user
 ```
-$ python manage createsuperuser
+$ python manage.py createsuperuser
 ```
 
 Docker:
 
 ## Initial Setup
 ```
-$ python manage collectstatic
+$ python manage.py collectstatic
 $ sudo docker-compose build --force-rm --no-cache
 $ # sudo docker-compose up postgres # To troubleshoot
 $ sudo docker-compose up -d postgres
@@ -132,7 +132,7 @@ $ sudo docker-compose up web # this will launch a production version
 After each library install run
 
 ```
-$ python manage collectstatic
+$ python manage.py collectstatic --no-input
 $ sudo docker-compose build
 $ sudo docker stop $(sudo docker ps -aq)
 $ sudo docker-compose up web # this will launch a production version

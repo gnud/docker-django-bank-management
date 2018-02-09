@@ -28,3 +28,4 @@ text-unidecode==1.1
 typing==3.6.4
 urllib3==1.22
 uWSGI==2.0.15
+schwifty==2.1.0
